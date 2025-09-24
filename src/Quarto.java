@@ -37,6 +37,10 @@ public class Quarto {
         ultimaPosicaoConsumo = 0;
     }
 
+    public float calcularPrecoDiarias(int quantidadeDias) {
+        return diaria * quantidadeDias;
+    }
+
     public float valorTotalConsumo() {
         float resultado = 0;
         for (int i = 0; i < consumo.length; i++) {
