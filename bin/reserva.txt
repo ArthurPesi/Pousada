@@ -1,0 +1,5 @@
+0;11;Carlos(Thie Rock);11;I
+1000;1001;Batman;28;A
+30;60;Karen;8;C
+41;42;Bruno Henrique;29;A
+0;1;Luisito;22;A

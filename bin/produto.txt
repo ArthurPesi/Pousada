@@ -1,0 +1,6 @@
+Deck precon Frodo;10;0
+Crepusculo - Segunda edicao;50;1
+Agua;10;2
+Comida misteriosa;30;3
+Deck precon Edgar Markov;100;4
+Refri;2;5
