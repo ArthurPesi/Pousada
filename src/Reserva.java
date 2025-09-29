@@ -22,6 +22,9 @@ public class Reserva {
         this.status = status;
     }
 
+    public char getStatus() {
+        return this.status;
+    }
     public int getDataInicio() {
         return diaInicio;
     }
@@ -46,20 +49,12 @@ public class Reserva {
         }
     }
 
-    public int realizaCheckIn() {
-        if(status == 'A') { //Retorna 0 em sucesso
-            status = 'I';
-            return 0;
-        } else if (status == 'C') {//Retorna 1 se ja estiver cancelado
-            return 1;
-        } else if (status == 'I') {//Retorna 2 se estiver em check-in
-            return 2;
-        } else {//Retorna 3 se estiver em check-out
-            return 3;
-        }
-    }
+    public String realizaCheckIn() {//Realiza o checkin e retorna os dados a serem imprimidos.
+        if(status != 'A') {
+            return "Erro no checkin. A reserva nao esta ativa. Ela esta " + status;
+        } 
+        status = 'I';
 
-    public String dadosCheckIn() {
         String resultado = "";
         int quantidadeDias = diaFim - diaInicio;
         resultado += "Datas: " + diaInicio + " - " + diaFim + "\n" +
@@ -69,25 +64,20 @@ public class Reserva {
         return resultado;
     }
 
-    public int verificarDisponibilidade(int diaInicioComparar, int diaFimComparar, String nomeComparar, Quarto quartoComparar) {
-        //Retorna um codigo baseado se esta disponivel ou qual motivo nao esta disponivel
-        //0 = essa reserva nao colide com a reserva comparada
-        //1 = cliente ja possui reserva ativa
-        //2 = quarto esta ocupado nessa data
-        if(status == 'O' || status == 'C') //Se a reserva estiver inativa, nao pode influenciar o resultado
-            return 0;
-        if(cliente.equals(nomeComparar))
-            return 1;
-        if(quartoComparar.getNumero() != quarto.getNumero())//Se os quartos forem diferentes, nao precisa nem comparar as datas
-            return 0;
-        if(diaFim < diaInicioComparar || diaFimComparar < diaInicio) //Se nao houver colisao entre as datas
-            return 0;
-        else //Se houver colisao entre as datas
-            return 2;
+    public boolean incluiDia(int data) {
+        if(data >= diaInicio && data <= diaFim) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public int getNumeroQuarto() {
         return quarto.getNumero();
+    }
+
+    public Quarto getQuarto() {
+        return quarto;
     }
 
     @Override
@@ -97,4 +87,18 @@ public class Reserva {
                 " Quarto: " + quarto.getNumero() + 
                 " Status: " + status;
     }
+
+
+	public String realizaCheckOut() {
+        status = 'O';
+        String resultado = "";
+
+        int quantidadeDias = diaFim - diaInicio;
+        resultado += "Datas: " + diaInicio + " - " + diaFim + "\n" +
+                    "Quantidade de dias: " + quantidadeDias + "\n" +
+                    "Valor das diarias : " + quarto.calcularPrecoDiarias(quantidadeDias) + "\n" +
+                    "Dados do quarto: " + quarto.toString();
+        //TODO: inserir valor total com diaria e consumo e ver como e o retorno do quarto
+        return resultado;
+	}
 }

@@ -1,3 +1,4 @@
+//TODO: colocar comentarios
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.File;
@@ -5,24 +6,25 @@ import java.util.Scanner;
 import java.util.Arrays;
 
 public class Pousada {
-    private static final String TEXTOMENU = "Escolha uma opcao:\n" +
-            "1: Consultar disponibilidade\n" +
-            "2: Consultar reserva\n" +
-            "3: Realizar reserva\n" +
-            "4: Cancelar reserva\n" +
-            "5: Realizar check-in\n" +
-            "6: Realizar check-out\n" +
-            "7: Registrar consumo\n" +
-            "8: Salvar\n" +
-            "0: Sair\n";
-//TODO: botar variaveis em ordem
-    private static Produto[] produtos;
-    private static Quarto[] quartos;
     private static String nome = "Pousadona dos Guri";
     private static String contato = "(51) 96420-6911";
+    private static Produto[] produtos;
+    private static Quarto[] quartos;
     private static Reserva[] reservas;
+
     private static int ultimaReserva = -1;
+
     private static String caminhoProjeto;
+    private static final String TEXTOMENU = "Escolha uma opcao:\n" +
+    "1: Consultar disponibilidade\n" +
+    "2: Consultar reserva\n" +
+    "3: Realizar reserva\n" +
+    "4: Cancelar reserva\n" +
+    "5: Realizar check-in\n" +
+    "6: Realizar check-out\n" +//TODO:
+    "7: Registrar consumo\n" +
+    "8: Salvar\n" + //TODO:
+    "0: Sair\n";
 
     public static void main(String[] args) throws Exception {
         caminhoProjeto = System.getProperty("java.class.path");
@@ -32,12 +34,14 @@ public class Pousada {
         try {
             Scanner inputUsuario = new Scanner(System.in);
 
-            while (true) {
+            while (true) { //TEST: testar todas opcoes
+                //TODO: fazer nao morrer se digitar uma coisa que nao e numero
                 System.out.println(TEXTOMENU);
                 int resposta = inputUsuario.nextInt();
                 // Sair se escolher 0
                 if (resposta == 0) {
                     System.out.println("Opcao escolhida: sair. Tchau!");
+                    //TODO: dar opcao de salvar antes de sair
                     break;
                 } else if (resposta == 1) {
                     System.out.println("Opcao escolhida: consultar disponibilidade");
@@ -45,14 +49,28 @@ public class Pousada {
                     int data = inputUsuario.nextInt();
                     System.out.println("Insira o número do quarto desejado:");
                     int quartoNumero = inputUsuario.nextInt();
-
-                    boolean disponivel = consultaDisponibilidade(data, quartoNumero);
-                    if(disponivel) {//TODO: printar os dados do quarto
-                        System.out.println("O quarto esta disponivel para essa data");
+                    Quarto quarto = quartos[quartoNumero];
+                    boolean disponivel = consultaDisponibilidade(data, quarto);
+                    if(disponivel) {
+                        System.out.println("O quarto esta disponivel para essa data. Informacoes do quarto:");
+                        System.out.println(quarto.toString());
                     } else {
                         System.out.println("O quarto nao esta disponivel para essa data");
                     }
-                } else if(resposta == 3) {
+                } else if(resposta == 2) {//TEST:
+                    System.out.println("Opcao escolhida: consultar reserva");
+                    System.out.println("Insira a data (-1 se nao quiser incluir data na pesquisa");
+                    int data = inputUsuario.nextInt();
+
+                    System.out.println("Insira o cliente (N se nao quiser incluir cliente na pesquisa");
+                    String nomeCliente = inputUsuario.next();
+
+                    System.out.println("Insira o numero do quarto (-1 se nao quiser incluir quarto na pesquisa");
+                    int numeroQuarto = inputUsuario.nextInt();
+
+                    consultaReserva(data, nomeCliente, numeroQuarto);
+                    
+                }else if(resposta == 3) {
                     System.out.println("Opcao escolhida: realizar reserva");
                     System.out.println("Insira a data inicial da reserva");
                     int[] datas = new int[2];
@@ -60,13 +78,11 @@ public class Pousada {
                     System.out.println("Insira a data final da reserva");
                     datas[1] = inputUsuario.nextInt();
                     System.out.println("Insira o nome para a reserva");
-                    String nomeCliente = inputUsuario.next();
-                    System.out.println("Insira o numero do quarto desejado");
+                    String nomeCliente = inputUsuario.next(); //TODO: nao aceitar o nome Nao
+                    System.out.println("Insira o numero do quarto desejado"); //TODO: mostrar todos numeros de quartos que da pra ter. Se der tempo, listar apenas quartos disponiveis para a data
                     int numeroQuarto = inputUsuario.nextInt();
                     Quarto quartoReserva = quartos[numeroQuarto];
-                    String retorno = realizaReserva(datas, nomeCliente, quartoReserva);
-                    System.out.println(retorno);
-                    System.out.println(reservas[ultimaReserva].toString());
+                    realizaReserva(datas, nomeCliente, quartoReserva);
                 }
                 else if(resposta == 4) {
                     System.out.println("Opcao escolhida: cancelar reserva");
@@ -79,6 +95,28 @@ public class Pousada {
                     System.out.println("Insira o nome informado na reserva");
                     String nomeCliente = inputUsuario.next();
                     realizaCheckIn(nomeCliente);
+                } else if(resposta == 6) {
+                    System.out.println("Opcao escolhida: realizar check-out");
+                    System.out.println("Insira o nome informado na reserva");
+                    String nomeCliente = inputUsuario.next();
+                    realizaCheckOut(nomeCliente);
+
+                } else if (resposta == 7) {
+                    System.out.println("Opcao escolhida: registrar consumo");
+                    String nomeCliente = inputUsuario.next();
+
+                    int reservaNumero = getReservaValidaPorCliente(nomeCliente, 'I'); 
+                    if(reservaNumero == -1) {
+                        System.out.println("Nao ha reserva em check-in para o nome informado. Verifique se ha erros de digitacao");
+                    }
+                    System.out.println("Escolha um dos produtos:");
+                    for(int i = 0; i < produtos.length; i++) {
+                        System.out.println(i + ": " + produtos[i].toString());
+                    }
+                    int produtoEscolhido = inputUsuario.nextInt();
+                    //TODO: verificar se e um produto valido
+                    Quarto quarto = reservas[reservaNumero].getQuarto();
+                    quarto.adicionaConsumo(produtoEscolhido);//TEST: essa parte pode dar uns bugs bizarros
                 } else {
                     System.out.println("Opcao invalida. Escolha uma das opcoes apresentadas abaixo. Digite apenas o numero");
                 }
@@ -88,80 +126,138 @@ public class Pousada {
             e.printStackTrace();
         }
     }
-    //TODO: refatorar isso - botar uma funcao dentro das reservas
-    public static boolean consultaDisponibilidade(int data, int numeroQuarto) {
+
+    public static boolean consultaDisponibilidade(int data, Quarto quarto) {
         for (int i = 0; i <= ultimaReserva; i++) {
             Reserva reserva = reservas[i];
-            if(reserva.getDataInicio() <= data && reserva.getDataFim() >= data && reserva.getNumeroQuarto() == numeroQuarto)
+            if(!reserva.incluiDia(data) && reserva.getNumeroQuarto() == quarto.getNumero())
                 return false;
         }
         return true;
     }
 
-    public static void realizaCheckIn(String cliente) {
-        for (int i = 0; i <= ultimaReserva; i++) {
+    public static boolean consultaDisponibilidade(int dataInicio, int dataFim, Quarto quarto) {
+        for( int i = 0; i <= ultimaReserva; i++) {
             Reserva reserva = reservas[i];
-            if(reserva.getCliente().equals(cliente)) {
-                int retorno = reserva.realizaCheckIn();
-                if(retorno == 0) {
-                    System.out.println("Check-in realizado com sucesso");
-                    System.out.println(reserva.dadosCheckIn());
-                } else if(retorno == 1) {
-                    System.out.println("Nao e possivel fazer check-in apos o cancelamento da reserva.");
-                } else if(retorno == 2) {
-                    System.out.println("O check-in ja havia sido realizado");
-                } else if(retorno == 3) {
-                    System.out.println("Nao e possivel realizar o check-in apos o check-out");
-                }
-                return;
+            if(reserva.getStatus() == 'O' || reserva.getStatus() == 'C') {
+                continue;
+            }
+            if(reserva.getNumeroQuarto() != quarto.getNumero()) {
+                continue;
+            }
+            if(reserva.getDataInicio()  > dataFim || dataInicio > reserva.getDataFim()) {
+                continue; //Se uma comeca depois do fim da outra, nao ha colisao. Caso contrario, nao esta
+                //disponivel e retorna falso.
+            } else {
+                return false;
             }
         }
 
-        System.out.println("Nao foi encontrada nenhuma reserva com o nome " + cliente + ". Verifique se digitou corretamente");
-    }
-    public static void cancelaReserva(String cliente) {
-        for (int i = 0; i <= ultimaReserva; i++) {
-            Reserva reserva = reservas[i];
-            if(reserva.getCliente().equals(cliente)) {
-                int resultado = reserva.cancelar();
-                if(resultado == 0) {
-                    System.out.println("Reserva cancelada com sucesso");
-                } else if(resultado == 1) {
-                    System.out.println("A reserva ja estava cancelada");
-                } else if(resultado == 2) {
-                    System.out.println("Nao e possivel cancelar a reserva apos o check-in");
-                } else if(resultado == 3) {
-                    System.out.println("Nao e possivel cancelar a reserva apos o check-out");
-                }
-                return;
-            }
-        }
+        return true;
+    } 
 
-        System.out.println("Nao foi encontrada nenhuma reserva com o nome " + cliente + ". Verifique se digitou corretamente");
-    }
-
-    public static String realizaReserva(int[] datas, String cliente, Quarto quarto) {
-        //Verificar disponibilidade da reserva
-        for (int i = 0; i <= ultimaReserva; i++) {
+    public static void consultaReserva(int data, String cliente, int quartoNumero) {
+        String textoReservas = "";
+        for(int i = 0; i <= ultimaReserva; i++) {
             Reserva reserva = reservas[i];
-            int codigoDisponibilidade = reserva.verificarDisponibilidade(datas[0], datas[1], cliente, quarto);
-            if(codigoDisponibilidade == 1) { 
-                return "Ja ha reserva para esse cliente";
+            if(reserva.getNumeroQuarto() != quartoNumero && quartoNumero != -1) {
+                continue;
             } 
-            if(codigoDisponibilidade == 2) {
-                return "Esse quarto esta ocupado nesse periodo";//TODO: talvez mostrar as datas e ate outra opcao de quarto para o mesmo dia
+            else if(!reserva.getCliente().equals(cliente) && cliente != "Nao") {
+                continue;
+            }
+            else if(!reserva.incluiDia(data) && data != -1) {
+                continue;
+            }
+            textoReservas += reserva.toString() + "\n";
+        }
+
+        if(textoReservas.equals("")) {
+            System.out.println("nenhuma reserva encontrada para os dados fornecidos");
+        } else {
+            System.out.print("Reservas encontradas:\n" + textoReservas);
+        }
+    }
+
+    public static boolean consultaClientePodeReservar(String cliente) {
+        int reservaAtiva = getReservaValidaPorCliente(cliente, 'A');
+        int reservaIn = getReservaValidaPorCliente(cliente, 'I');
+        if(reservaAtiva == -1 && reservaIn == -1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //retorna um indice na array de reservas. Se nao houver, retorna -1
+    public static int getReservaValidaPorCliente(String cliente, char statusDesejado) {
+        for(int i = 0; i <= ultimaReserva; i++) {
+            Reserva reserva = reservas[i];
+            if(reserva.getCliente().equals(cliente)) {
+                char status = reserva.getStatus();
+                if(status == statusDesejado) {
+                    return i;
+                }
             }
         }
-        inserirReserva(datas[0], datas[1], cliente, quarto.getNumero());
-        return "Reserva feita com sucesso";
+        return -1;
     }
-    //TODO:mudar para receber um objeto de quarto em todos lugares
-    public static void inserirReserva(int diaInicio, int diaFim, String nome, int numeroQuarto) {
+
+    public static void realizaCheckIn(String cliente) {
+        int indiceReserva = getReservaValidaPorCliente(cliente, 'A');
+        if(indiceReserva == -1) {
+            System.out.println("Nao ha reserva ativa nesse nome. Verifique se nao ha erros de digitacao");
+            return;
+        }
+
+        Reserva reserva = reservas[indiceReserva];
+        String retorno = reserva.realizaCheckIn();
+        System.out.println("Check-in realizado com sucesso.\n" + retorno);
+    }
+
+    public static void realizaCheckOut(String cliente) {
+        int indiceReserva = getReservaValidaPorCliente(cliente, 'I');
+        if(indiceReserva == -1) {
+            System.out.println("Nao ha reserva em check-in para esse nome. Verifique se nao ha erros de digitacao");
+            return;
+        }
+        Reserva reserva = reservas[indiceReserva];
+        String retorno = reserva.realizaCheckOut();
+        System.out.println("Check-out realizado com sucesso.\n" + retorno);
+
+    }
+
+    public static void cancelaReserva(String cliente) {
+        int indiceReserva = getReservaValidaPorCliente(cliente, 'A');
+        if(indiceReserva == -1) {
+            System.out.println("Nao ha reserva ativa nesse nome. Verifique se nao ha erros de digitacao");
+            return;
+        }
+
+        Reserva reserva = reservas[indiceReserva];
+        reserva.cancelar();
+        System.out.println("Reserva cancelada com sucesso.");
+    }
+
+    public static void realizaReserva(int[] datas, String cliente, Quarto quarto) {
+        if(!consultaDisponibilidade(datas[0], datas[1], quarto)) {//TODO: sugerir outro quarto da mesma categoria para a mesma data
+            System.out.println("O quarto nao esta disponivel para essa data");
+        }
+
+        if(!consultaClientePodeReservar(cliente)) {
+            System.out.println("Ja ha uma reserva para esse cliente");
+        }
+
+        inserirReserva(datas[0], datas[1], cliente, quarto);
+        System.out.println("Reserva feita com sucesso");
+    }
+
+    public static void inserirReserva(int diaInicio, int diaFim, String nome, Quarto quarto) {
         ultimaReserva++;
         if(ultimaReserva == reservas.length) {
             reservas = Arrays.copyOf(reservas, reservas.length * 2);
         }
-        reservas[ultimaReserva] = new Reserva(diaInicio, diaFim,nome, quartos[numeroQuarto]);
+        reservas[ultimaReserva] = new Reserva(diaInicio, diaFim,nome, quarto);
     }
 
     public static void carregaDados() {
