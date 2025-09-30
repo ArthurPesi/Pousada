@@ -130,6 +130,7 @@ public class Pousada {
     public static boolean consultaDisponibilidade(int data, Quarto quarto) {
         for (int i = 0; i <= ultimaReserva; i++) {
             Reserva reserva = reservas[i];
+            //FIX: verificar se a reserva ta ativa ou checkin
             if(!reserva.incluiDia(data) && reserva.getNumeroQuarto() == quarto.getNumero())
                 return false;
         }
@@ -242,10 +243,12 @@ public class Pousada {
     public static void realizaReserva(int[] datas, String cliente, Quarto quarto) {
         if(!consultaDisponibilidade(datas[0], datas[1], quarto)) {//TODO: sugerir outro quarto da mesma categoria para a mesma data
             System.out.println("O quarto nao esta disponivel para essa data");
+            return;
         }
 
         if(!consultaClientePodeReservar(cliente)) {
             System.out.println("Ja ha uma reserva para esse cliente");
+            return;
         }
 
         inserirReserva(datas[0], datas[1], cliente, quarto);
