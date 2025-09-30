@@ -1,6 +1,8 @@
 //TODO: colocar comentarios
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.File;
 import java.util.Scanner;
 import java.util.Arrays;
@@ -21,9 +23,9 @@ public class Pousada {
     "3: Realizar reserva\n" +
     "4: Cancelar reserva\n" +
     "5: Realizar check-in\n" +
-    "6: Realizar check-out\n" +//TODO:
+    "6: Realizar check-out\n" +
     "7: Registrar consumo\n" +
-    "8: Salvar\n" + //TODO:
+    "8: Salvar\n" +
     "0: Sair\n";
 
     public static void main(String[] args) throws Exception {
@@ -36,12 +38,14 @@ public class Pousada {
 
             while (true) { //TEST: testar todas opcoes
                 //TODO: fazer nao morrer se digitar uma coisa que nao e numero
-                System.out.println(TEXTOMENU);
+                System.out.println(TEXTOMENU);//TODO: dar erro se escolher um quarto ou produto etc invalido
                 int resposta = inputUsuario.nextInt();
                 // Sair se escolher 0
                 if (resposta == 0) {
-                    System.out.println("Opcao escolhida: sair. Tchau!");
-                    //TODO: dar opcao de salvar antes de sair
+                    System.out.println("Opcao escolhida: sair.");
+                    System.out.println("Salvando seus dados...");
+                    salvaDados();
+                    System.out.println("Tchau!");
                     break;
                 } else if (resposta == 1) {
                     System.out.println("Opcao escolhida: consultar disponibilidade");
@@ -57,12 +61,12 @@ public class Pousada {
                     } else {
                         System.out.println("O quarto nao esta disponivel para essa data");
                     }
-                } else if(resposta == 2) {//TEST:
+                } else if(resposta == 2) {
                     System.out.println("Opcao escolhida: consultar reserva");
                     System.out.println("Insira a data (-1 se nao quiser incluir data na pesquisa");
                     int data = inputUsuario.nextInt();
 
-                    System.out.println("Insira o cliente (N se nao quiser incluir cliente na pesquisa");
+                    System.out.println("Insira o cliente (Nao se nao quiser incluir cliente na pesquisa");
                     String nomeCliente = inputUsuario.next();
 
                     System.out.println("Insira o numero do quarto (-1 se nao quiser incluir quarto na pesquisa");
@@ -117,6 +121,9 @@ public class Pousada {
                     //TODO: verificar se e um produto valido
                     Quarto quarto = reservas[reservaNumero].getQuarto();
                     quarto.adicionaConsumo(produtoEscolhido);//TEST: essa parte pode dar uns bugs bizarros
+                } else if (resposta == 8) {
+                    System.out.println("Opcao escolhida: salvar dados");
+                    salvaDados();
                 } else {
                     System.out.println("Opcao invalida. Escolha uma das opcoes apresentadas abaixo. Digite apenas o numero");
                 }
@@ -130,8 +137,14 @@ public class Pousada {
     public static boolean consultaDisponibilidade(int data, Quarto quarto) {
         for (int i = 0; i <= ultimaReserva; i++) {
             Reserva reserva = reservas[i];
-            //FIX: verificar se a reserva ta ativa ou checkin
-            if(!reserva.incluiDia(data) && reserva.getNumeroQuarto() == quarto.getNumero())
+            if(reserva.getStatus() == 'O' || reserva.getStatus() == 'C') {
+                continue;
+            }
+            if(reserva.getNumeroQuarto() != quarto.getNumero()) {
+                continue;
+            }
+            
+            if(reserva.incluiDia(data))
                 return false;
         }
         return true;
@@ -164,7 +177,7 @@ public class Pousada {
             if(reserva.getNumeroQuarto() != quartoNumero && quartoNumero != -1) {
                 continue;
             } 
-            else if(!reserva.getCliente().equals(cliente) && cliente != "Nao") {
+            else if(!reserva.getCliente().equals(cliente) && !cliente.equals("Nao")) {
                 continue;
             }
             else if(!reserva.incluiDia(data) && data != -1) {
@@ -348,5 +361,42 @@ public class Pousada {
             e.printStackTrace();
         }
         return informacoesArquivo;
+    }
+
+    public static void salvaDados() {
+        String conteudoQuarto = "";
+        boolean primeiro = true;
+        for(Quarto quarto: quartos) {
+            if(!primeiro) {
+                conteudoQuarto += "\n";
+            }
+            conteudoQuarto += quarto.getFormaArquivo();
+            primeiro = false;
+        }
+
+        serializar(caminhoProjeto + "/quarto.txt", conteudoQuarto);
+        
+        String conteudoReserva = "";
+        primeiro = true;
+        for(int i = 0; i <= ultimaReserva; i++) {
+            if(!primeiro) {
+                conteudoReserva += "\n";
+            }
+            conteudoReserva += reservas[i].getFormaArquivo();
+            primeiro = false;
+        }
+
+        serializar(caminhoProjeto + "/reserva.txt", conteudoReserva);
+    }
+
+    private static void serializar(String caminhoArquivo, String conteudo) {
+        try {
+            File arquivoAEscrever = new File(caminhoArquivo);
+            BufferedWriter escritorArquivo = new BufferedWriter(new FileWriter(arquivoAEscrever));
+            escritorArquivo.write(conteudo);
+            escritorArquivo.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

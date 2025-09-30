@@ -68,10 +68,28 @@ public class Quarto {
 
     @Override
     public String toString() {
-        return "numero: " + numero + " | categoria: " + categoria + " | diaria: " + diaria + " produtos consumidos: " + listaConsumo();
+        return "numero: " + numero + " | categoria: " + categoria + " | diaria: " + diaria + "\nprodutos consumidos:\n" + listaConsumo();
     }
 
     public int getNumero() {
         return numero;
     }
+
+	public String getFormaArquivo() {
+        String textoProdutos = "";
+        boolean primeiro = true;
+        for(int produto: consumo) {
+            if(!primeiro) {
+                if(produto == -1) {
+                    break;
+                }
+                textoProdutos += ",";
+            }
+            textoProdutos += produto;
+            primeiro = false;
+            if(produto == -1)
+                break;
+        }
+        return numero + ";" + categoria + ";" + (int)diaria + ";" + textoProdutos;
+	}
 }

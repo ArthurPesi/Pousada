@@ -94,11 +94,20 @@ public class Reserva {
         String resultado = "";
 
         int quantidadeDias = diaFim - diaInicio;
+        float totalConsumo = quarto.valorTotalConsumo();
+        float totalDiarias = quarto.calcularPrecoDiarias(quantidadeDias);
+        float valorTotal = totalConsumo + totalDiarias;
         resultado += "Datas: " + diaInicio + " - " + diaFim + "\n" +
                     "Quantidade de dias: " + quantidadeDias + "\n" +
-                    "Valor das diarias : " + quarto.calcularPrecoDiarias(quantidadeDias) + "\n" +
-                    "Dados do quarto: " + quarto.toString();
-        //TODO: inserir valor total com diaria e consumo e ver como e o retorno do quarto
+                    "Valor das diarias : " + totalDiarias + "\n" +
+                    "Dados do quarto:\n" + quarto.toString() + "\n" +
+                    "Valor do consumo: " + totalConsumo + "\n" +
+                    "Valor total: " + valorTotal;
         return resultado;
+	}
+
+
+	public String getFormaArquivo() {
+        return diaInicio + ";" + diaFim + ";" + cliente + ";" +  quarto.getNumero() + ";" +  status;
 	}
 }

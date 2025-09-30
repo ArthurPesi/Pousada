@@ -1,0 +1,7 @@
+12;13;testezaco;2;O
+12;13;testezao;1;I
+0;1;Luisito;22;A
+41;42;Bruno Henrique;29;A
+30;60;Karen;8;C
+1000;1001;Batman;28;A
+0;11;Carlos;1;I
