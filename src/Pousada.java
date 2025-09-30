@@ -39,8 +39,8 @@ public class Pousada {
             while (true) { //TEST: testar todas opcoes
                 //TODO: fazer nao morrer se digitar uma coisa que nao e numero
                 System.out.println(TEXTOMENU);//TODO: dar erro se escolher um quarto ou produto etc invalido
-                int resposta = inputUsuario.nextInt();
-                // Sair se escolher 0
+                int resposta = inputUsuario.nextInt();//TODO: nao deixar escolher o nome Nao
+                // Sair se escolher 0//TODO: dar opcao de voltar sempre e pedir para revisar dados quando for importante
                 if (resposta == 0) {
                     System.out.println("Opcao escolhida: sair.");
                     System.out.println("Salvando seus dados...");
@@ -83,8 +83,15 @@ public class Pousada {
                     datas[1] = inputUsuario.nextInt();
                     System.out.println("Insira o nome para a reserva");
                     String nomeCliente = inputUsuario.next(); //TODO: nao aceitar o nome Nao
-                    System.out.println("Insira o numero do quarto desejado"); //TODO: mostrar todos numeros de quartos que da pra ter. Se der tempo, listar apenas quartos disponiveis para a data
-                    int numeroQuarto = inputUsuario.nextInt();
+                    System.out.println("Quartos disponíveis:");
+                    for(Quarto quarto: quartos) {
+                        if(consultaDisponibilidade(datas[0], datas[1], quarto)) {//TODO: separar por categoria e mostrar precos
+                            System.out.print(quarto.getNumero() + " ");//TODO: salvar respostas validas
+                        }
+                    }
+                    System.out.println();
+                    System.out.println("Insira o numero do quarto desejado"); //TODO: pedir quarto antes de nome
+                    int numeroQuarto = inputUsuario.nextInt(); //TODO: nao aceitar se for invalido
                     Quarto quartoReserva = quartos[numeroQuarto];
                     realizaReserva(datas, nomeCliente, quartoReserva);
                 }
@@ -254,7 +261,7 @@ public class Pousada {
     }
 
     public static void realizaReserva(int[] datas, String cliente, Quarto quarto) {
-        if(!consultaDisponibilidade(datas[0], datas[1], quarto)) {//TODO: sugerir outro quarto da mesma categoria para a mesma data
+        if(!consultaDisponibilidade(datas[0], datas[1], quarto)) {
             System.out.println("O quarto nao esta disponivel para essa data");
             return;
         }
