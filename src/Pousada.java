@@ -1,6 +1,4 @@
-//TODO: colocar comentarios
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.File;
@@ -37,10 +35,9 @@ public class Pousada {
             Scanner inputUsuario = new Scanner(System.in);
 
             while (true) { //TEST: testar todas opcoes
-                //TODO: fazer nao morrer se digitar uma coisa que nao e numero
-                System.out.println(TEXTOMENU);//TODO: dar erro se escolher um quarto ou produto etc invalido
-                int resposta = inputUsuario.nextInt();//TODO: nao deixar escolher o nome Nao
-                // Sair se escolher 0//TODO: dar opcao de voltar sempre e pedir para revisar dados quando for importante
+                System.out.println(TEXTOMENU);
+                int resposta = inputUsuario.nextInt();
+                // Sair se escolher 0
                 if (resposta == 0) {
                     System.out.println("Opcao escolhida: sair.");
                     System.out.println("Salvando seus dados...");
@@ -67,7 +64,7 @@ public class Pousada {
                     int data = inputUsuario.nextInt();
 
                     System.out.println("Insira o cliente (Nao se nao quiser incluir cliente na pesquisa");
-                    String nomeCliente = inputUsuario.next();
+                    String nomeCliente = inputUsuario.next().toLowerCase();
 
                     System.out.println("Insira o numero do quarto (-1 se nao quiser incluir quarto na pesquisa");
                     int numeroQuarto = inputUsuario.nextInt();
@@ -81,53 +78,63 @@ public class Pousada {
                     datas[0] = inputUsuario.nextInt();
                     System.out.println("Insira a data final da reserva");
                     datas[1] = inputUsuario.nextInt();
-                    System.out.println("Insira o nome para a reserva");
-                    String nomeCliente = inputUsuario.next(); //TODO: nao aceitar o nome Nao
                     System.out.println("Quartos disponíveis:");
-                    for(Quarto quarto: quartos) {
-                        if(consultaDisponibilidade(datas[0], datas[1], quarto)) {//TODO: separar por categoria e mostrar precos
-                            System.out.print(quarto.getNumero() + " ");//TODO: salvar respostas validas
+                    for(int i = 0; i < quartos.length; i++) {
+                        if(i == 0) {
+                            System.out.println("S (simples) diaria = 1");
+                        } else if(i == 10) {
+                            System.out.println("\nM (master) diaria = 100");
+                        } else if (i == 20) {
+                            System.out.println("\nP (premium) diaria = 100.000");
+                        }
+                        if(consultaDisponibilidade(datas[0], datas[1], quartos[i])) {
+                            System.out.print(quartos[i].getNumero() + " ");
                         }
                     }
                     System.out.println();
-                    System.out.println("Insira o numero do quarto desejado"); //TODO: pedir quarto antes de nome
-                    int numeroQuarto = inputUsuario.nextInt(); //TODO: nao aceitar se for invalido
+                    System.out.println("Insira o numero do quarto desejado"); 
+                    int numeroQuarto = inputUsuario.nextInt(); 
+
+                    System.out.println("Insira o nome para a reserva. Nao use o nome 'Nao'");
+                    String nomeCliente = inputUsuario.next().toLowerCase(); 
+
                     Quarto quartoReserva = quartos[numeroQuarto];
                     realizaReserva(datas, nomeCliente, quartoReserva);
                 }
                 else if(resposta == 4) {
                     System.out.println("Opcao escolhida: cancelar reserva");
                     System.out.println("Insira o nome informado na reserva");
-                    String nomeCliente = inputUsuario.next();
+                    String nomeCliente = inputUsuario.next().toLowerCase();
                     cancelaReserva(nomeCliente);
                 }
                 else if(resposta == 5) {
                     System.out.println("Opcao escolhida: realizar check-in");
                     System.out.println("Insira o nome informado na reserva");
-                    String nomeCliente = inputUsuario.next();
+                    String nomeCliente = inputUsuario.next().toLowerCase();
                     realizaCheckIn(nomeCliente);
                 } else if(resposta == 6) {
                     System.out.println("Opcao escolhida: realizar check-out");
                     System.out.println("Insira o nome informado na reserva");
-                    String nomeCliente = inputUsuario.next();
+                    String nomeCliente = inputUsuario.next().toLowerCase();
                     realizaCheckOut(nomeCliente);
 
                 } else if (resposta == 7) {
                     System.out.println("Opcao escolhida: registrar consumo");
-                    String nomeCliente = inputUsuario.next();
-
+                    System.out.println("Insira o nome informado na reserva");
+                    String nomeCliente = inputUsuario.next().toLowerCase();
                     int reservaNumero = getReservaValidaPorCliente(nomeCliente, 'I'); 
                     if(reservaNumero == -1) {
                         System.out.println("Nao ha reserva em check-in para o nome informado. Verifique se ha erros de digitacao");
+                        continue;
                     }
                     System.out.println("Escolha um dos produtos:");
                     for(int i = 0; i < produtos.length; i++) {
                         System.out.println(i + ": " + produtos[i].toString());
                     }
                     int produtoEscolhido = inputUsuario.nextInt();
-                    //TODO: verificar se e um produto valido
+
                     Quarto quarto = reservas[reservaNumero].getQuarto();
-                    quarto.adicionaConsumo(produtoEscolhido);//TEST: essa parte pode dar uns bugs bizarros
+                    quarto.adicionaConsumo(produtoEscolhido);
                 } else if (resposta == 8) {
                     System.out.println("Opcao escolhida: salvar dados");
                     salvaDados();
@@ -370,7 +377,7 @@ public class Pousada {
         return informacoesArquivo;
     }
 
-    public static void salvaDados() {
+    public static void salvaDados() {//TODO: tentar usar o negocio de writeobject e readobject
         String conteudoQuarto = "";
         boolean primeiro = true;
         for(Quarto quarto: quartos) {
@@ -381,7 +388,7 @@ public class Pousada {
             primeiro = false;
         }
 
-        serializar(caminhoProjeto + "/quarto.txt", conteudoQuarto);
+        serializar(caminhoProjeto + "/quartoteste.txt", conteudoQuarto);
         
         String conteudoReserva = "";
         primeiro = true;
@@ -399,7 +406,7 @@ public class Pousada {
     private static void serializar(String caminhoArquivo, String conteudo) {
         try {
             File arquivoAEscrever = new File(caminhoArquivo);
-            BufferedWriter escritorArquivo = new BufferedWriter(new FileWriter(arquivoAEscrever));
+            FileWriter escritorArquivo = new FileWriter(arquivoAEscrever);
             escritorArquivo.write(conteudo);
             escritorArquivo.close();
         } catch (Exception e) {

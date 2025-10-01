@@ -25,12 +25,17 @@ public class Quarto {
         this.categoria = categoria;
         this.diaria = diaria;
         this.consumo = consumo.clone();
+        this.ultimaPosicaoConsumo = this.consumo.length -1;
         this.produtosDisponiveis = produtosDisponiveis.clone();
     }
 
     public void adicionaConsumo(int codigo) {
+        if(ultimaPosicaoConsumo + 1 == consumo.length) {
+            consumo = Arrays.copyOf(consumo, consumo.length * 2);
+        }
         consumo[ultimaPosicaoConsumo] = codigo;
         ultimaPosicaoConsumo++;
+        System.out.println("Consumo adicionado para o quarto " + numero);
     }
 
     public void limpaConsumo() {
