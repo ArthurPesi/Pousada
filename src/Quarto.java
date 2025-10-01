@@ -4,17 +4,14 @@ public class Quarto {
     private int numero;
     private char categoria;
     private float diaria;
-        //TODO: aumentar esse cara
     private int[] consumo;
     private Produto[] produtosDisponiveis;
     private int ultimaPosicaoConsumo = 0;
 
-    //TODO: fazer metodos
     Quarto(int numero, char categoria, float diaria, Produto[] produtosDisponiveis) {
         this.numero = numero;
         this.categoria = categoria;
         this.diaria = diaria;
-        //TODO: aumentar esse cara
         consumo = new int[32];
         Arrays.fill(consumo, -1);
         this.produtosDisponiveis = produtosDisponiveis.clone();
@@ -29,53 +26,53 @@ public class Quarto {
         this.produtosDisponiveis = produtosDisponiveis.clone();
     }
 
+    //Adicionar consumo na copa
     public void adicionaConsumo(int codigo) {
-        if(ultimaPosicaoConsumo + 1 == consumo.length) {
+        if(ultimaPosicaoConsumo + 1 == consumo.length) {//Duplicar tamanho se faltar espaco
             consumo = Arrays.copyOf(consumo, consumo.length * 2);
         }
-        consumo[ultimaPosicaoConsumo] = codigo;
+
+        consumo[ultimaPosicaoConsumo] = codigo;//Adicionar consumo para a lista
         ultimaPosicaoConsumo++;
         System.out.println("Consumo adicionado para o quarto " + numero);
     }
 
-    public void limpaConsumo() {
+    public void limpaConsumo() {//Limpar lista de consumo
         ultimaPosicaoConsumo = 0;
     }
 
-    public float calcularPrecoDiarias(int quantidadeDias) {
-        return diaria * quantidadeDias;
-    }
 
     public float valorTotalConsumo() {
         float resultado = 0;
-        for (int i = 0; i < consumo.length; i++) {
+        for (int i = 0; i <= ultimaPosicaoConsumo; i++) {
             int idProdutoAtual = consumo[i];
             if(idProdutoAtual < 0) {
                 break;
             }
-            resultado += produtosDisponiveis[idProdutoAtual].getPreco();
+            resultado += produtosDisponiveis[idProdutoAtual].getPreco();//Somar preco de cada produto
         }
         return resultado;
     }
 
     public String listaConsumo() {
         String resultado = "";
-        for (int i = 0; i < consumo.length; i++) {
+        for (int i = 0; i <= ultimaPosicaoConsumo; i++) {
             int idProdutoAtual = consumo[i];
             if(idProdutoAtual < 0) {
                 break;
             }
-            resultado += produtosDisponiveis[idProdutoAtual].toString();
+            resultado += produtosDisponiveis[idProdutoAtual].toString();//Listar produtos
             resultado += "\n";
         }
         return resultado;
     }
 
-    @Override
+    @Override//TODO: usar toString direito
     public String toString() {
         return "numero: " + numero + " | categoria: " + categoria + " | diaria: " + diaria + "\nprodutos consumidos:\n" + listaConsumo();
     }
 
+    //Getters e setters
     public int getNumero() {
         return numero;
     }
@@ -97,4 +94,8 @@ public class Quarto {
         }
         return numero + ";" + categoria + ";" + (int)diaria + ";" + textoProdutos;
 	}
+
+    public float calcularPrecoDiarias(int quantidadeDias) {
+        return diaria * quantidadeDias;
+    }
 }

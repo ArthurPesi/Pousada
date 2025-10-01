@@ -14,6 +14,7 @@ public class Produto {
         return "Nome: " + nome + " | preco: " + preco + " | codigo: " + codigo;
     }
 
+    //Getters e setters
     public float getPreco() {
         return preco;
     }
