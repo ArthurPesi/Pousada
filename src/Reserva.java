@@ -1,6 +1,7 @@
 import java.io.Serializable;
 
 public class Reserva implements Serializable {
+    private static final long serialVersionUID = 4194571570067485409L;
     private int diaInicio;
     private int diaFim;
     private String cliente; //Nome do cliente
@@ -53,7 +54,14 @@ public class Reserva implements Serializable {
         return diaInicio + ";" + diaFim + ";" + cliente + ";" +  quarto.getNumero() + ";" +  status;
 	}
 
-    //Fim dos getters e setters
+	public int getDiaInicio() {
+		return diaInicio;
+	}
+
+
+	public int getDiaFim() {
+		return diaFim;
+	}
 
     //Mudar estado para cancelado
     public void cancelar() {
@@ -90,8 +98,8 @@ public class Reserva implements Serializable {
         }
     }
 
-
-    public String getInformacoes() {
+    @Override
+    public String toString() {
         return "Inicio: " + diaInicio + " Fim: " + 
                 diaFim + " Cliente: " + cliente + 
                 " Quarto: " + quarto.getNumero() + 
@@ -118,20 +126,4 @@ public class Reserva implements Serializable {
                     "Valor total: " + valorTotal;
         return resultado;
 	}
-
-
-	public int getDiaInicio() {
-		return diaInicio;
-	}
-
-
-	public int getDiaFim() {
-		return diaFim;
-	}
-
-    //Serializacao
-    @Override
-    public String toString() {
-        return diaInicio + '\t' + diaFim + '\t' + cliente + '\t' + quarto.toString() + '\t' + status;
-    }
 }

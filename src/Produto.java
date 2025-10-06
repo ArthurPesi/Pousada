@@ -1,6 +1,7 @@
 import java.io.Serializable;
 
 public class Produto implements Serializable {
+    private static final long serialVersionUID = 8128310456923919123L;
     private int codigo;
     private String nome;
     private float preco;
@@ -11,7 +12,8 @@ public class Produto implements Serializable {
     this.preco = preco;
     }
 
-    public String getInformacoes() {
+    @Override
+    public String toString() {
         return "Nome: " + nome + " | preco: " + preco + " | codigo: " + codigo;
     }
 
@@ -21,8 +23,8 @@ public class Produto implements Serializable {
     }
     
     //Serializacao
-    @Override
-    public String toString() {
-        return "" + codigo + '\t' + nome + '\t' + preco;
-    }
+    //@Override
+    //public String toString() {
+    //    return "" + codigo + '\t' + nome + '\t' + preco;
+    //}
 }

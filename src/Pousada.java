@@ -1,10 +1,6 @@
-import java.io.BufferedReader;
 import java.io.EOFException;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,16 +8,20 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class Pousada {
-    private static String nome = "Pousadona dos Guri";
-    private static String contato = "(51) 96420-6911";
+    private static String nome;
+    private static String contato;
     private static Produto[] produtos;
     private static Quarto[] quartos;
     private static Reserva[] reservas;
-    private static Reserva[] testeReservas;
 
     private static int ultimaReserva = -1;
 
     private static String caminhoProjeto;
+    private static String caminhoArquivoReserva;
+    private static String caminhoArquivoPousada;
+    private static String caminhoArquivoQuarto;
+    private static String caminhoArquivoProduto;
+
     private static final String TEXTOMENU = "Escolha uma opcao:\n" +
     "1: Consultar disponibilidade\n" +
     "2: Consultar reserva\n" +
@@ -34,13 +34,16 @@ public class Pousada {
     "0: Sair\n";
 
     public static void main(String[] args) throws Exception {
-        //Carregar o caminho do projeto para poder acessar os arquivos
+        //Carregar caminho dos arquivos
         caminhoProjeto = System.getProperty("java.class.path");
-        //TODO: criar variaveis para acessar cada arquivo
+        caminhoArquivoPousada = caminhoProjeto + "/pousada.txt";
+        caminhoArquivoReserva = caminhoProjeto + "/reserva.txt";
+        caminhoArquivoQuarto = caminhoProjeto + "/quarto.txt";
+        caminhoArquivoProduto = caminhoProjeto + "/produto.txt";
         
         carregaDados();//Carregar dados dos arquivos
 
-        System.out.println("Seja bem vindo a " + nome + ". Caso precise entrar em contato, ligue para " + contato);
+        System.out.println("Seja bem vindo a " + nome + ". Contato: " + contato);
 
         try {
             Scanner inputUsuario = new Scanner(System.in);
@@ -71,7 +74,7 @@ public class Pousada {
 
                     if(disponivel) {
                         System.out.println("O quarto esta disponivel para essa data. Informacoes do quarto:");
-                        System.out.println(quarto.getInformacoes());
+                        System.out.println(quarto.toString());
                     } else {
                         System.out.println("O quarto nao esta disponivel para essa data");
                     }
@@ -82,7 +85,7 @@ public class Pousada {
                     System.out.println("Insira a data (-1 se nao quiser incluir data na pesquisa)");
                     int data = inputUsuario.nextInt();
 
-                    System.out.println("Insira o cliente (Nao se nao quiser incluir cliente na pesquisa)");
+                    System.out.println("Insira o cliente (Digite -1 se nao quiser incluir cliente na pesquisa)");
                     String nomeCliente = inputUsuario.next().toLowerCase();
 
                     System.out.println("Insira o numero do quarto (-1 se nao quiser incluir quarto na pesquisa)");
@@ -118,7 +121,7 @@ public class Pousada {
                     System.out.println("Insira o numero do quarto desejado"); 
                     int numeroQuarto = inputUsuario.nextInt(); 
 
-                    System.out.println("Insira o nome para a reserva. Nao use o nome 'Nao'");
+                    System.out.println("Insira o nome para a reserva. Nao use o nome '-1'");
                     String nomeCliente = inputUsuario.next().toLowerCase(); 
 
                     Quarto quartoReserva = quartos[numeroQuarto];
@@ -157,7 +160,7 @@ public class Pousada {
 
                     System.out.println("Escolha um dos produtos:");
                     for(int i = 0; i < produtos.length; i++)
-                        System.out.println(i + ": " + produtos[i].getInformacoes());
+                        System.out.println(i + ": " + produtos[i].toString());
                     int produtoEscolhido = inputUsuario.nextInt();
 
                     quarto.adicionaConsumo(produtoEscolhido);
@@ -179,7 +182,6 @@ public class Pousada {
     public static boolean consultaDisponibilidade(int data, Quarto quarto) {
         for (int i = 0; i <= ultimaReserva; i++) {
             Reserva reserva = reservas[i];
-            System.out.println(reserva);
             if(reserva.getStatus() == 'O' || reserva.getStatus() == 'C') {//Ignora reservas canceladas e em check-out
                 continue;
             }
@@ -223,13 +225,13 @@ public class Pousada {
             if(reserva.getNumeroQuarto() != quartoNumero && quartoNumero != -1) {//Se o quarto for diferente ou -1, ignora
                 continue;
             } 
-            else if(!reserva.getCliente().equals(cliente) && !cliente.equals("Nao")) {//Se o cliente for diferente ou Nao, ignora
+            else if(!reserva.getCliente().equals(cliente) && !cliente.equals("-1")) {//Se o cliente for diferente ou Nao, ignora
                 continue;
             }
             else if(!reserva.incluiDia(data) && data != -1) {//Se a data nao estiver inclusa ou for -1, ignora
                 continue;
             }
-            textoReservas += reserva.getInformacoes() + "\n";
+            textoReservas += reserva.toString() + "\n";
         }
 
         if(textoReservas.equals("")) {//Caso nao encontre nenhuma reserva
@@ -290,8 +292,8 @@ public class Pousada {
 
         Reserva reserva = reservas[indiceReserva];
         String retorno = reserva.realizaCheckOut();
+        reserva.getQuarto().limpaConsumo();
         System.out.println("Check-out realizado com sucesso.\n" + retorno);
-
     }
 
     //Cancelar reserva
@@ -335,27 +337,40 @@ public class Pousada {
 
     public static void carregaDados() throws ClassNotFoundException {
         try {
-            FileInputStream stream = new FileInputStream(caminhoProjeto + "/testeReserva.txt");
+            FileInputStream stream = new FileInputStream(caminhoArquivoPousada);
+            ObjectInputStream input = new ObjectInputStream(stream);
+
+            nome = input.readUTF();
+            contato = input.readUTF();
+
+            input.close();
+        } catch (EOFException e) {
+            //nada
+        } catch (IOException e) {
+            System.out.println("Erro no carregamento dos dados da pousada:");
+            e.printStackTrace();
+        }
+        
+        try {
+            FileInputStream stream = new FileInputStream(caminhoArquivoReserva);
             ObjectInputStream input = new ObjectInputStream(stream);
             reservas = new Reserva[50];
 
             Object reserva;
             int i = 0;
             while((reserva = input.readObject()) != null) {
-                reservas[i++] = (Reserva) reserva;
                 ultimaReserva = i;
+                reservas[i++] = (Reserva) reserva;
             }
             input.close();
         } catch (EOFException e) {
-            System.out.println("ultimaReserva: " + ultimaReserva);
-            System.out.println("Reservas carregadas com sucesso");
         } catch (IOException e) {
             System.out.println("Erro no carregamento das reservas:");
             e.printStackTrace();
         }
 
         try {
-            FileInputStream stream = new FileInputStream(caminhoProjeto + "/testeQuarto.txt");
+            FileInputStream stream = new FileInputStream(caminhoArquivoQuarto);
             ObjectInputStream input = new ObjectInputStream(stream);
             quartos = new Quarto[30];
 
@@ -367,14 +382,13 @@ public class Pousada {
 
             input.close();
         } catch (EOFException e) {
-            System.out.println("Quartos carregados com sucesso");
         } catch (IOException e) {
             System.out.println("Erro no carregamento dos quartos:");
             e.printStackTrace();
         }
 
         try {
-            FileInputStream stream = new FileInputStream(caminhoProjeto + "/testeProduto.txt");
+            FileInputStream stream = new FileInputStream(caminhoArquivoProduto);
             ObjectInputStream input = new ObjectInputStream(stream);
             produtos = new Produto[6];
 
@@ -386,105 +400,29 @@ public class Pousada {
 
             input.close();
         } catch (EOFException e) {
-            System.out.println("Produtos carregados com sucesso");
         } catch (IOException e) {
             System.out.println("Erro no carregamento dos produtos:");
             e.printStackTrace();
         }
-
-/*
-        //carregar produtos /*
-        ListaLigada informacoesProdutos = deserializar(caminhoProjeto + "/produto.txt");
-        Nodo informacoesAtuais = informacoesProdutos.getPrimeiro();
-        int quantidadeProdutos = informacoesProdutos.getTamanho();
-
-        produtos = new Produto[quantidadeProdutos];
-
-        for (int i = 0; i < quantidadeProdutos; i++) {
-            String[] dados = informacoesAtuais.getConteudo().clone();
-            String nomeProduto = dados[0];
-            float preco = Float.parseFloat(dados[1]);
-            int codigo = Integer.parseInt(dados[2]);
-            produtos[codigo] = new Produto(nomeProduto, preco, codigo);
-
-            informacoesAtuais = informacoesAtuais.getProximo();
-        }
-
-        //carregar quartos
-        ListaLigada informacoesQuartos = deserializar(caminhoProjeto + "/quarto.txt");
-        informacoesAtuais = informacoesQuartos.getPrimeiro();
-
-        int quantidadeQuartos = informacoesQuartos.getTamanho();
-        quartos = new Quarto[quantidadeQuartos];
-
-        for (int i = 0; i < quantidadeQuartos; i++) {
-            String[] dados = informacoesAtuais.getConteudo().clone();
-            int numero = Integer.parseInt(dados[0]);
-            char categoria = dados[1].charAt(0);
-            float diaria = Float.parseFloat(dados[2]);
-
-            //pegar lista de itens consumidos
-            String[] consumoString = dados[3].split(",");
-            int[] consumo = new int[consumoString.length];
-            for(int j = 0; j < consumoString.length; j++) {
-                consumo[j] = Integer.parseInt(consumoString[j]);
-            }
-
-            if(consumo[0] == -1) {
-                //Se nao houver consumo
-                quartos[numero] = new Quarto(numero, categoria, diaria, produtos);
-            } else {
-                quartos[numero] = new Quarto(numero, categoria, diaria, produtos, consumo);
-            }
-            informacoesAtuais = informacoesAtuais.getProximo();
-        }
-
-        //carregar reservas
-        ListaLigada informacoesReservas = deserializar(caminhoProjeto + "/reserva.txt");
-        informacoesAtuais = informacoesReservas.getPrimeiro();
-
-        int quantidadeReservas = informacoesReservas.getTamanho();
-        reservas = new Reserva[quantidadeReservas * 2];
-
-        for (int i = 0; i < quantidadeReservas; i++) {
-            String[] dados = informacoesAtuais.getConteudo().clone();
-            int diaInicio = Integer.parseInt(dados[0]);
-            int diaFim = Integer.parseInt(dados[1]);
-            String cliente = dados[2];
-            int numeroQuarto = Integer.parseInt(dados[3]);
-            Quarto quarto = quartos[numeroQuarto];
-            char status = dados[4].charAt(0);
-            reservas[i] = new Reserva(diaInicio, diaFim, cliente, quarto, status);
-            ultimaReserva++;
-
-            informacoesAtuais = informacoesAtuais.getProximo();
-        }
-        */
     }
 
-    private static ListaLigada deserializar(String caminhoArquivo) {
-        ListaLigada informacoesArquivo = new ListaLigada();
+    public static void salvaDados() {
         try {
-            File arquivoALer = new File(caminhoArquivo);
-            BufferedReader LeitorArquivo = new BufferedReader(new FileReader(arquivoALer));
+            ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(caminhoArquivoPousada));
 
-            String linha;
-            while ((linha = LeitorArquivo.readLine()) != null) {
-                String[] linhaDiscriminada = linha.split(";");
-                informacoesArquivo.inserir(linhaDiscriminada);
-            }
-            LeitorArquivo.close();
-        } catch (Exception e) {
+            outStream.writeUTF(nome);
+            outStream.writeUTF(contato);
+
+            outStream.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return informacoesArquivo;
-    }
 
-    public static void salvaDados() {//TODO: tentar usar o negocio de writeobject e readobject
         try {
-            ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(caminhoProjeto + "/testeReserva.txt"));
+            ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(caminhoArquivoReserva));
             for(int i = 0; i <= ultimaReserva; i++) {
-                outStream.writeObject(reservas[i]);
+                if(reservas[i].getStatus() != 'O' && reservas[i].getStatus() != 'C')
+                    outStream.writeObject(reservas[i]);
             }
             outStream.close();
         } catch (IOException e) {
@@ -492,7 +430,7 @@ public class Pousada {
         }
 
         try {
-            ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(caminhoProjeto + "/testeQuarto.txt"));
+            ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(caminhoArquivoQuarto));
             for(Quarto quarto: quartos) {
                 outStream.writeObject(quarto);
             }
@@ -502,49 +440,12 @@ public class Pousada {
         }
 
         try {
-            ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(caminhoProjeto + "/testeProduto.txt"));
+            ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(caminhoArquivoProduto));
             for(Produto produto: produtos) {
                 outStream.writeObject(produto);
             }
             outStream.close();
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-
-        String conteudoQuarto = "";
-        boolean primeiro = true;
-        for(Quarto quarto: quartos) {
-            if(!primeiro) {
-                conteudoQuarto += "\n";
-            }
-            conteudoQuarto += quarto.getFormaArquivo();
-            primeiro = false;
-        }
-
-        serializar(caminhoProjeto + "/quartoteste.txt", conteudoQuarto);
-        
-        String conteudoReserva = "";
-        primeiro = true;
-        for(int i = 0; i <= ultimaReserva; i++) {
-            if(!primeiro) {
-                conteudoReserva += "\n";
-            }
-            conteudoReserva += reservas[i].getFormaArquivo();
-            primeiro = false;
-        }
-
-        serializar(caminhoProjeto + "/reserva.txt", conteudoReserva);
-    }
-
-    private static void serializar(String caminhoArquivo, String conteudo) {
-        try {
-            File arquivoAEscrever = new File(caminhoArquivo);
-            FileWriter escritorArquivo = new FileWriter(arquivoAEscrever);
-            escritorArquivo.write(conteudo);
-            escritorArquivo.close();
-        } catch (Exception e) {
             e.printStackTrace();
         }
     }
