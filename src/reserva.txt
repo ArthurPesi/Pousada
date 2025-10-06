@@ -1,7 +1,7 @@
-12;13;testezaco;2;O
-12;13;testezao;1;I
-0;1;luisito;22;A
-41;42;bruno henrique;29;A
-30;60;karen;8;C
-1000;1001;batman;28;O
 0;11;carlos;1;I
+1000;1001;batman;28;O
+30;60;karen;8;C
+41;42;bruno henrique;29;A
+0;1;luisito;22;A
+12;13;testezao;1;I
+12;13;testezaco;2;O

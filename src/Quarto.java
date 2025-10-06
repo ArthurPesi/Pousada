@@ -1,6 +1,8 @@
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class Quarto {
+public class Quarto implements Serializable {
     private int numero;
     private char categoria;
     private float diaria;
@@ -67,8 +69,7 @@ public class Quarto {
         return resultado;
     }
 
-    @Override//TODO: usar toString direito
-    public String toString() {
+    public String getInformacoes() {
         return "numero: " + numero + " | categoria: " + categoria + " | diaria: " + diaria + "\nprodutos consumidos:\n" + listaConsumo();
     }
 
@@ -97,5 +98,11 @@ public class Quarto {
 
     public float calcularPrecoDiarias(int quantidadeDias) {
         return diaria * quantidadeDias;
+    }
+
+    //Serializacao
+    @Override
+    public String toString() {
+        return numero + '\t' + categoria + '\t' + diaria + '\t' + Arrays.toString(consumo) + '\t' + Arrays.toString(produtosDisponiveis) + '\t' + ultimaPosicaoConsumo;
     }
 }

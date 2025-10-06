@@ -1,4 +1,6 @@
-public class Reserva {
+import java.io.Serializable;
+
+public class Reserva implements Serializable {
     private int diaInicio;
     private int diaFim;
     private String cliente; //Nome do cliente
@@ -89,8 +91,7 @@ public class Reserva {
     }
 
 
-    @Override//TODO: usar toString
-    public String toString() {
+    public String getInformacoes() {
         return "Inicio: " + diaInicio + " Fim: " + 
                 diaFim + " Cliente: " + cliente + 
                 " Quarto: " + quarto.getNumero() + 
@@ -119,4 +120,18 @@ public class Reserva {
 	}
 
 
+	public int getDiaInicio() {
+		return diaInicio;
+	}
+
+
+	public int getDiaFim() {
+		return diaFim;
+	}
+
+    //Serializacao
+    @Override
+    public String toString() {
+        return diaInicio + '\t' + diaFim + '\t' + cliente + '\t' + quarto.toString() + '\t' + status;
+    }
 }
