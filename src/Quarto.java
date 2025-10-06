@@ -75,6 +75,10 @@ public class Quarto implements Serializable {
         return "numero: " + numero + " | categoria: " + categoria + " | diaria: " + diaria + "\nprodutos consumidos:\n" + listaConsumo();
     }
 
+    public String getInfoDisponibilidade() {
+        return "numero: " + numero + " | categoria: " + categoria + " | diaria: " + diaria;
+    }
+    
     public int getNumero() {
         return numero;
     }

@@ -74,7 +74,7 @@ public class Pousada {
 
                     if(disponivel) {
                         System.out.println("O quarto esta disponivel para essa data. Informacoes do quarto:");
-                        System.out.println(quarto.toString());
+                        System.out.println(quarto.getInfoDisponibilidade());
                     } else {
                         System.out.println("O quarto nao esta disponivel para essa data");
                     }
